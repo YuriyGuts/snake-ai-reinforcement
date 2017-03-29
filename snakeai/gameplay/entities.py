@@ -4,7 +4,12 @@ import numpy as np
 from collections import deque, namedtuple
 
 
-Point = namedtuple('Point', ['x', 'y'])
+class Point(namedtuple('PointTuple', ['x', 'y'])):
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Point(self.x - other.x, self.y - other.y)
 
 
 class CellType(object):
@@ -38,6 +43,7 @@ class Snake(object):
             for i in range(length)
         ])
         self.direction = SnakeDirection.NORTH
+        self.tail_direction = SnakeDirection.SOUTH
         self.directions = [
             SnakeDirection.NORTH,
             SnakeDirection.EAST,
@@ -58,7 +64,7 @@ class Snake(object):
         return len(self.body)
 
     def peek_next_move(self):
-        return Point(self.head.x + self.direction.x, self.head.y + self.direction.y)
+        return self.head + self.direction
 
     def turn_left(self):
         direction_idx = self.directions.index(self.direction)
@@ -69,15 +75,15 @@ class Snake(object):
         self.direction = self.directions[(direction_idx + 1) % len(self.directions)]
 
     def reverse_direction(self):
-        direction_idx = self.directions.index(self.direction)
         self.body = deque(reversed(self.body))
-        self.direction = self.directions[(direction_idx + len(self.directions) // 2) % len(self.directions)]
+        self.direction = self.tail_direction
 
     def grow(self):
         self.body.appendleft(self.peek_next_move())
 
     def move(self):
         self.body.appendleft(self.peek_next_move())
+        self.tail_direction = self.body[-1] - self.body[-2]
         self.body.pop()
 
 
@@ -123,7 +129,7 @@ class Field(object):
         while True:
             fruit_coords = np.random.randint(low=0, high=self.size, size=2)
             if self[fruit_coords] == CellType.EMPTY:
-                return list(fruit_coords)
+                return tuple(fruit_coords)
 
     def place_snake(self, snake):
         self[snake.head] = CellType.SNAKE_HEAD
@@ -131,9 +137,16 @@ class Field(object):
             self[snake_cell] = CellType.SNAKE_BODY
 
     def update_snake_footprint(self, old_head, old_tail, new_head):
-        # Update field cells according to new snake position.
-        # At some level, we're duplicating some information between
-        # the snake and the field to speed up the environment.
-        self[new_head] = CellType.SNAKE_HEAD
+        # Update field cells according to the new snake position.
+        # Environment must be as fast as possible to speed up agent training.
+        # Therefore, we'll sacrifice some duplication of information between
+        # the snake body and the field just to execute timesteps faster.
         self[old_head] = CellType.SNAKE_BODY
-        self[old_tail] = CellType.EMPTY
+
+        # If we've grown at this step, the tail cell shouldn't move.
+        if old_tail:
+            self[old_tail] = CellType.EMPTY
+
+        # Support the case when we're chasing own tail.
+        if self[new_head] not in (CellType.WALL, CellType.SNAKE_BODY) or new_head == old_tail:
+            self[new_head] = CellType.SNAKE_HEAD

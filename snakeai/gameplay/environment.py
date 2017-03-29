@@ -43,20 +43,23 @@ class Environment(object):
         old_head = self.snake.head
         old_tail = self.snake.tail
 
-        # Are we standing next to a fruit?
+        # Are we about to eat the fruit?
         if self.snake.peek_next_move() == self.fruit:
             self.snake.grow()
+            self.generate_fruit()
+            old_tail = None
             reward += self.rewards['ate_fruit']
         # If not, just move forward.
         else:
             self.snake.move()
             reward += self.rewards['timestep']
 
+        self.field.update_snake_footprint(old_head, old_tail, self.snake.head)
         if not self.is_alive():
+            self.field[self.snake.head] = CellType.SNAKE_HEAD
             self.is_game_over = True
             reward += self.rewards['died']
 
-        self.field.update_snake_footprint(old_head, old_tail, self.snake.head)
         return TimestepResult(
             observation=self.get_observation(),
             reward=reward,

@@ -3,6 +3,7 @@ import os
 import sys
 
 from snakeai.gameplay.environment import Environment
+from snakeai.gui.window import GUI
 
 
 def main():
@@ -13,24 +14,11 @@ def main():
     with open('snakeai/levels/small_blank.json') as cfg:
         config = json.load(cfg)
     env = Environment(config=config)
+    env.new_episode()
 
-    print(env.new_episode())
-    print(env.timestep())
-    print(env.timestep())
-
-    env.take_action(2)
-    print(env.timestep())
-    print(env.timestep())
-
-    env.take_action(1)
-    print(env.timestep())
-    print(env.timestep())
-    print(env.timestep())
-
-    env.take_action(3)
-    print(env.timestep())
-    print(env.timestep())
-    print(env.timestep())
+    gui = GUI()
+    gui.load_environment(env)
+    gui.run()
 
 
 if __name__ == '__main__':
