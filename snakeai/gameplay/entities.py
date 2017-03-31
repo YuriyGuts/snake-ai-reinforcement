@@ -27,11 +27,27 @@ class SnakeDirection(object):
     WEST = Point(-1, 0)
 
 
+ALL_SNAKE_DIRECTIONS = [
+    SnakeDirection.NORTH,
+    SnakeDirection.EAST,
+    SnakeDirection.SOUTH,
+    SnakeDirection.WEST,
+]
+
+
 class SnakeAction(object):
     MAINTAIN_DIRECTION = 0
-    REVERSE_DIRECTION = 1
-    TURN_LEFT = 2
+    TURN_LEFT = 1
+    REVERSE_DIRECTION = 2
     TURN_RIGHT = 3
+
+
+ALL_SNAKE_ACTIONS = [
+    SnakeAction.MAINTAIN_DIRECTION,
+    SnakeAction.TURN_LEFT,
+    SnakeAction.REVERSE_DIRECTION,
+    SnakeAction.TURN_RIGHT
+]
 
 
 class Snake(object):
@@ -44,12 +60,7 @@ class Snake(object):
         ])
         self.direction = SnakeDirection.NORTH
         self.tail_direction = SnakeDirection.SOUTH
-        self.directions = [
-            SnakeDirection.NORTH,
-            SnakeDirection.EAST,
-            SnakeDirection.SOUTH,
-            SnakeDirection.WEST,
-        ]
+        self.directions = ALL_SNAKE_DIRECTIONS
 
     @property
     def head(self):

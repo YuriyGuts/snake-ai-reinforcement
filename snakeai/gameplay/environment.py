@@ -29,7 +29,7 @@ class Environment(object):
     def get_observation(self):
         return np.copy(self.field.cells)
 
-    def take_action(self, action):
+    def choose_action(self, action):
         if action == SnakeAction.TURN_LEFT:
             self.snake.turn_left()
         elif action == SnakeAction.TURN_RIGHT:

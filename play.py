@@ -2,8 +2,9 @@ import json
 import os
 import sys
 
+from snakeai.agent import HumanAgent
 from snakeai.gameplay.environment import Environment
-from snakeai.gui.window import GUI
+from snakeai.gui import PyGameGUI
 
 
 def main():
@@ -12,12 +13,14 @@ def main():
     sys.path.append(current_dir)
 
     with open('snakeai/levels/small_blank.json') as cfg:
-        config = json.load(cfg)
-    env = Environment(config=config)
-    env.new_episode()
+        env_config = json.load(cfg)
 
-    gui = GUI()
+    env = Environment(config=env_config)
+    agent = HumanAgent()
+
+    gui = PyGameGUI()
     gui.load_environment(env)
+    gui.load_agent(agent)
     gui.run()
 
 
