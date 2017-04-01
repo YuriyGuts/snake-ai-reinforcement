@@ -12,7 +12,7 @@ def main():
     current_dir = os.path.abspath(os.path.dirname(__file__))
     sys.path.append(current_dir)
 
-    with open('snakeai/levels/small_blank.json') as cfg:
+    with open('snakeai/levels/10x10-blank.json') as cfg:
         env_config = json.load(cfg)
 
     env = Environment(config=env_config)

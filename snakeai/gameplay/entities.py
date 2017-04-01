@@ -1,6 +1,7 @@
 import itertools
-import numpy as np
+import random
 
+import numpy as np
 from collections import deque, namedtuple
 
 
@@ -100,34 +101,61 @@ class Snake(object):
 
 class Field(object):
 
-    def __init__(self, size=10, level_map=None):
-        self.size = size
-        self.cells = None
+    def __init__(self, level_map=None):
         self.level_map = level_map
+        self._cells = None
+        self._empty_cells = set()
+        self._level_map_to_cell_type = {
+            'S': CellType.SNAKE_HEAD,
+            's': CellType.SNAKE_BODY,
+            '#': CellType.WALL,
+            'O': CellType.FRUIT,
+            '.': CellType.EMPTY,
+        }
+        self._cell_type_to_level_map = {
+            cell_type: symbol
+            for symbol, cell_type in self._level_map_to_cell_type.items()
+        }
 
     def __getitem__(self, point):
         x, y = point
-        return self.cells[y, x]
+        return self._cells[y, x]
 
     def __setitem__(self, point, cell_type):
         x, y = point
-        self.cells[y, x] = cell_type
+        self._cells[y, x] = cell_type
 
-    def _map_symbol_to_cell_type(self, symbol):
-        if symbol == 'S':
-            return CellType.SNAKE_HEAD
-        elif symbol == '#':
-            return CellType.WALL
-        elif symbol == '.':
-            return CellType.EMPTY
+        # Do some internal bookkeeping to not rely on random picking.
+        if cell_type == CellType.EMPTY:
+            self._empty_cells.add(point)
         else:
-            raise ValueError('Invalid level cell type: "{}"'.format(symbol))
+            if point in self._empty_cells:
+                self._empty_cells.remove(point)
+
+    def __str__(self):
+        return '\n'.join(
+            ''.join(self._cell_type_to_level_map[cell] for cell in row)
+            for row in self._cells
+        )
+
+    @property
+    def size(self):
+        return len(self.level_map)
 
     def create_level(self):
-        self.cells = np.array([
-            [self._map_symbol_to_cell_type(symbol) for symbol in line]
-            for line in self.level_map
-        ])
+        try:
+            self._cells = np.array([
+                [self._level_map_to_cell_type[symbol] for symbol in line]
+                for line in self.level_map
+            ])
+            self._empty_cells = {
+                Point(x, y)
+                for y in range(self.size)
+                for x in range(self.size)
+                if self[(x, y)] == CellType.EMPTY
+            }
+        except KeyError as err:
+            raise ValueError(f'Unknown level map symbol: "{err.args[0]}"')
 
     def find_snake_head(self):
         for y in range(self.size):
@@ -136,11 +164,8 @@ class Field(object):
                     return Point(x, y)
         raise ValueError('Initial snake position not specified on the level map')
 
-    def get_random_blank_cell(self):
-        while True:
-            fruit_coords = np.random.randint(low=0, high=self.size, size=2)
-            if self[fruit_coords] == CellType.EMPTY:
-                return tuple(fruit_coords)
+    def get_random_empty_cell(self):
+        return random.choice(list(self._empty_cells))
 
     def place_snake(self, snake):
         self[snake.head] = CellType.SNAKE_HEAD
