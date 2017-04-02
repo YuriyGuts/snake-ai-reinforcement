@@ -58,6 +58,8 @@ def test_env_idle_run_reports_correct_timesteps():
     assert tsr.is_episode_end
 
     assert env.stats.sum_episode_rewards == -500
+    assert env.stats.timesteps_survived == 4
+    assert env.stats.termination_reason == 'hit_wall'
     assert env.stats.action_counter == {
         SnakeAction.MAINTAIN_DIRECTION: 4,
         SnakeAction.REVERSE_DIRECTION: 0,
@@ -109,6 +111,8 @@ def test_env_bite_own_tail_reports_game_over():
     assert tsr.is_episode_end
 
     assert env.stats.sum_episode_rewards == 30
+    assert env.stats.timesteps_survived == 6
+    assert env.stats.termination_reason == 'hit_own_body'
     assert env.stats.action_counter == {
         SnakeAction.MAINTAIN_DIRECTION: 3,
         SnakeAction.REVERSE_DIRECTION: 0,
@@ -141,6 +145,8 @@ def test_env_when_new_episode_starts_resets_previous_state():
 
     tsr = env.timestep()
     assert tsr.is_episode_end
+    assert env.stats.timesteps_survived == env.max_step_limit
+    assert env.stats.termination_reason == 'timestep_limit_exceeded'
 
     env.new_episode()
 
@@ -152,4 +158,5 @@ def test_env_when_new_episode_starts_resets_previous_state():
     assert env.stats.sum_episode_rewards == 0
     assert env.stats.fruits_eaten == 0
     assert env.stats.timesteps_survived == 0
+    assert env.stats.termination_reason is None
     assert set(env.stats.action_counter.values()) == {0}
