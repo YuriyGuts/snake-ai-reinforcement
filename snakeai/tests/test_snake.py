@@ -125,19 +125,6 @@ def test_multiple_moves_keep_track_of_tail_direction():
     assert snake.tail_direction == SnakeDirection.NORTH
 
 
-def test_reverse_direction_goes_opposite_way():
-    snake = Snake(Point(3, 5))
-    snake.move()
-    snake.reverse_direction()
-    snake.move()
-    snake.move()
-
-    assert snake.direction == SnakeDirection.SOUTH
-    assert snake.head == (3, 8)
-    assert snake.tail == (3, 6)
-    assert list(snake.body) == [(3, 8), (3, 7), (3, 6)]
-
-
 def test_turn_right_turns_relatively_to_current_direction():
     snake = Snake(Point(3, 5))
 
@@ -164,23 +151,3 @@ def test_turn_left_turns_relatively_to_current_direction():
     assert snake.direction == SnakeDirection.EAST
     snake.turn_left()
     assert snake.direction == SnakeDirection.NORTH
-
-
-def test_reverse_direction_bent_snake_respects_tail_direction():
-    snake = Snake(Point(3, 5), length=5)
-
-    snake.direction = SnakeDirection.WEST
-    snake.move()
-    snake.move()
-
-    snake.direction = SnakeDirection.SOUTH
-    snake.move()
-    snake.move()
-    snake.move()
-
-    snake.reverse_direction()
-    snake.move()
-    assert snake.direction == SnakeDirection.EAST
-    assert snake.tail_direction == SnakeDirection.SOUTH
-    assert snake.length == 5
-    assert list(snake.body) == [(3, 5), (2, 5), (1, 5), (1, 6), (1, 7)]

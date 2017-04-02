@@ -61,9 +61,16 @@ class PyGameGUI:
                 self.render_cell(x, y)
 
     def map_key_to_snake_action(self, key):
+        actions = [
+            SnakeAction.MAINTAIN_DIRECTION,
+            SnakeAction.TURN_LEFT,
+            SnakeAction.MAINTAIN_DIRECTION,
+            SnakeAction.TURN_RIGHT,
+        ]
+
         key_idx = self.SNAKE_CONTROL_KEYS.index(key)
         direction_idx = ALL_SNAKE_DIRECTIONS.index(self.env.snake.direction)
-        return np.roll(ALL_SNAKE_ACTIONS, -key_idx)[direction_idx]
+        return np.roll(actions, -key_idx)[direction_idx]
 
     def run(self):
         pygame.display.update()

@@ -39,15 +39,13 @@ ALL_SNAKE_DIRECTIONS = [
 class SnakeAction(object):
     MAINTAIN_DIRECTION = 0
     TURN_LEFT = 1
-    REVERSE_DIRECTION = 2
-    TURN_RIGHT = 3
+    TURN_RIGHT = 2
 
 
 ALL_SNAKE_ACTIONS = [
     SnakeAction.MAINTAIN_DIRECTION,
     SnakeAction.TURN_LEFT,
-    SnakeAction.REVERSE_DIRECTION,
-    SnakeAction.TURN_RIGHT
+    SnakeAction.TURN_RIGHT,
 ]
 
 
@@ -85,10 +83,6 @@ class Snake(object):
     def turn_right(self):
         direction_idx = self.directions.index(self.direction)
         self.direction = self.directions[(direction_idx + 1) % len(self.directions)]
-
-    def reverse_direction(self):
-        self.body = deque(reversed(self.body))
-        self.direction = self.tail_direction
 
     def grow(self):
         self.body.appendleft(self.peek_next_move())

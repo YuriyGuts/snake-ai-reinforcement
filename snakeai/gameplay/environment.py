@@ -81,8 +81,6 @@ class Environment(object):
             self.snake.turn_left()
         elif action == SnakeAction.TURN_RIGHT:
             self.snake.turn_right()
-        elif action == SnakeAction.REVERSE_DIRECTION:
-            self.snake.reverse_direction()
 
     def timestep(self):
         self.timestep_index += 1

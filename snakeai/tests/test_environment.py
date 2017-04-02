@@ -62,7 +62,6 @@ def test_env_idle_run_reports_correct_timesteps():
     assert env.stats.termination_reason == 'hit_wall'
     assert env.stats.action_counter == {
         SnakeAction.MAINTAIN_DIRECTION: 4,
-        SnakeAction.REVERSE_DIRECTION: 0,
         SnakeAction.TURN_LEFT: 0,
         SnakeAction.TURN_RIGHT: 0,
     }
@@ -115,7 +114,6 @@ def test_env_bite_own_tail_reports_game_over():
     assert env.stats.termination_reason == 'hit_own_body'
     assert env.stats.action_counter == {
         SnakeAction.MAINTAIN_DIRECTION: 3,
-        SnakeAction.REVERSE_DIRECTION: 0,
         SnakeAction.TURN_LEFT: 0,
         SnakeAction.TURN_RIGHT: 3,
     }
@@ -126,11 +124,11 @@ def test_env_timestep_limit_exceeded_fails_gracefully():
     env.new_episode()
 
     for i in range(env.max_step_limit - 1):
-        env.choose_action(SnakeAction.REVERSE_DIRECTION)
+        env.choose_action(SnakeAction.TURN_RIGHT)
         tsr = env.timestep()
         assert not tsr.is_episode_end
 
-    env.choose_action(SnakeAction.REVERSE_DIRECTION)
+    env.choose_action(SnakeAction.TURN_RIGHT)
     tsr = env.timestep()
     assert tsr.is_episode_end
 
@@ -140,7 +138,7 @@ def test_env_when_new_episode_starts_resets_previous_state():
     env.new_episode()
 
     for i in range(env.max_step_limit - 1):
-        env.choose_action(SnakeAction.REVERSE_DIRECTION)
+        env.choose_action(SnakeAction.TURN_RIGHT)
         env.timestep()
 
     tsr = env.timestep()
