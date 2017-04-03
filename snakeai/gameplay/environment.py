@@ -28,6 +28,14 @@ class Environment(object):
         random.seed(value)
         np.random.seed(value)
 
+    @property
+    def observation_shape(self):
+        return self.field.size, self.field.size
+
+    @property
+    def num_actions(self):
+        return len(ALL_SNAKE_ACTIONS)
+
     def new_episode(self):
         self.field.create_level()
         self.stats.reset()
@@ -89,7 +97,7 @@ class Environment(object):
             self.snake.grow()
             self.generate_fruit()
             old_tail = None
-            reward += self.rewards['ate_fruit']
+            reward += self.rewards['ate_fruit'] * self.snake.length
             self.stats.fruits_eaten += 1
 
         # If not, just move forward.

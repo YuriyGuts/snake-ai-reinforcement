@@ -2,9 +2,7 @@ import numpy as np
 import pygame
 
 from snakeai.agent import HumanAgent
-from snakeai.gameplay.entities import (
-    CellType, SnakeAction, ALL_SNAKE_ACTIONS, ALL_SNAKE_DIRECTIONS
-)
+from snakeai.gameplay.entities import (CellType, SnakeAction, ALL_SNAKE_DIRECTIONS)
 
 
 class PyGameGUI:
@@ -85,12 +83,12 @@ class PyGameGUI:
         # Main game loop.
         running = True
         while running:
-            action = self.agent.act(timestep_result.observation, timestep_result.reward)
+            action = SnakeAction.MAINTAIN_DIRECTION
 
             # Handle events.
             for event in pygame.event.get():
-                if is_human_agent and event.type == pygame.KEYDOWN:
-                    if event.key in self.SNAKE_CONTROL_KEYS:
+                if event.type == pygame.KEYDOWN:
+                    if is_human_agent and event.key in self.SNAKE_CONTROL_KEYS:
                         action = self.map_key_to_snake_action(event.key)
                     if event.key == pygame.K_ESCAPE:
                         running = False
@@ -104,6 +102,9 @@ class PyGameGUI:
 
             if timestep_timed_out or human_made_move:
                 self.timestep_watch.reset()
+
+                if not is_human_agent:
+                    action = self.agent.act(timestep_result.observation, timestep_result.reward)
 
                 self.env.choose_action(action)
                 timestep_result = self.env.timestep()
