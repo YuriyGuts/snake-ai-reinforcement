@@ -16,9 +16,8 @@
   "max_step_limit": 1000,
 
   "rewards": {
-    "moved_closer_to_fruit": 10,
-    "moved_further_from_fruit": -10,
-    "ate_fruit": 500,
-    "died": -1000
+    "timestep": 0,
+    "ate_fruit": 1,
+    "died": -1
   }
 }

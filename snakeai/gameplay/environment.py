@@ -19,7 +19,6 @@ class Environment(object):
 
         self.timestep_index = 0
         self.current_action = None
-        self.prev_distance_to_fruit = 0
         self.stats = EpisodeStatistics()
         self.debug = debug
         self.debug_file = None
@@ -68,10 +67,6 @@ class Environment(object):
                 stats_csv_line = self.stats.to_dataframe().to_csv(header=False, index=None)
                 print(stats_csv_line, file=self.stats_file, end='', flush=True)
 
-    def get_distance_to_fruit(self):
-        diff = self.fruit - self.snake.head
-        return abs(diff.x) + abs(diff.y)
-
     def get_observation(self):
         return np.copy(self.field._cells)
 
@@ -100,8 +95,7 @@ class Environment(object):
         # If not, just move forward.
         else:
             self.snake.move()
-            reward += self.get_reward_for_distance_to_fruit()
-            self.prev_distance_to_fruit = self.get_distance_to_fruit()
+            reward += self.rewards['timestep']
 
         self.field.update_snake_footprint(old_head, old_tail, self.snake.head)
 
@@ -135,15 +129,6 @@ class Environment(object):
             position = self.field.get_random_empty_cell()
         self.field[position] = CellType.FRUIT
         self.fruit = position
-        self.prev_distance_to_fruit = self.get_distance_to_fruit()
-
-    def get_reward_for_distance_to_fruit(self):
-        # Reward the agent for getting closer to the fruit (or penalize otherwise)
-        distance_diff = self.prev_distance_to_fruit - self.get_distance_to_fruit()
-        if distance_diff > 0:
-            return self.rewards['moved_closer_to_fruit'] * abs(distance_diff)
-        else:
-            return self.rewards['moved_further_from_fruit'] * abs(distance_diff)
 
     def has_hit_wall(self):
         return self.field[self.snake.head] == CellType.WALL

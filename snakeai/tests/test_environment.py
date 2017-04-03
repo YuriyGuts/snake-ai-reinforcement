@@ -38,26 +38,25 @@ def test_env_idle_run_reports_correct_timesteps():
 
     assert tsr.reward == 0
     assert not tsr.is_episode_end
-    assert env.get_distance_to_fruit() == 2
 
     env.choose_action(SnakeAction.MAINTAIN_DIRECTION)
     tsr = env.timestep()
-    assert tsr.reward == 10
+    assert tsr.reward == 0
     assert not tsr.is_episode_end
 
     tsr = env.timestep()
-    assert tsr.reward == 500
+    assert tsr.reward == 4
     assert not tsr.is_episode_end
 
     tsr = env.timestep()
-    assert tsr.reward == -10
+    assert tsr.reward == 0
     assert not tsr.is_episode_end
 
     tsr = env.timestep()
-    assert tsr.reward == -1000
+    assert tsr.reward == -1
     assert tsr.is_episode_end
 
-    assert env.stats.sum_episode_rewards == -500
+    assert env.stats.sum_episode_rewards == 3
     assert env.stats.timesteps_survived == 4
     assert env.stats.termination_reason == 'hit_wall'
     assert env.stats.action_counter == {
@@ -77,39 +76,38 @@ def test_env_bite_own_tail_reports_game_over():
 
     assert tsr.reward == 0
     assert not tsr.is_episode_end
-    assert env.get_distance_to_fruit() == 2
 
     # Collect 2 fruits.
     env.choose_action(SnakeAction.MAINTAIN_DIRECTION)
     tsr = env.timestep()
-    assert tsr.reward == 10
+    assert tsr.reward == 0
     assert not tsr.is_episode_end
 
     tsr = env.timestep()
-    assert tsr.reward == 500
+    assert tsr.reward == 4
     assert not tsr.is_episode_end
 
     tsr = env.timestep()
-    assert tsr.reward == 500
+    assert tsr.reward == 5
     assert not tsr.is_episode_end
 
     # Turn right three times to bite own tail.
     env.choose_action(SnakeAction.TURN_RIGHT)
     tsr = env.timestep()
-    assert tsr.reward == 10
+    assert tsr.reward == 0
     assert not tsr.is_episode_end
 
     env.choose_action(SnakeAction.TURN_RIGHT)
     tsr = env.timestep()
-    assert tsr.reward == 10
+    assert tsr.reward == 0
     assert not tsr.is_episode_end
 
     env.choose_action(SnakeAction.TURN_RIGHT)
     tsr = env.timestep()
-    assert tsr.reward == -1000
+    assert tsr.reward == -1
     assert tsr.is_episode_end
 
-    assert env.stats.sum_episode_rewards == 30
+    assert env.stats.sum_episode_rewards == 8
     assert env.stats.timesteps_survived == 6
     assert env.stats.termination_reason == 'hit_own_body'
     assert env.stats.action_counter == {
