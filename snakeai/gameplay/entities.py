@@ -58,7 +58,6 @@ class Snake(object):
             for i in range(length)
         ])
         self.direction = SnakeDirection.NORTH
-        self.tail_direction = SnakeDirection.SOUTH
         self.directions = ALL_SNAKE_DIRECTIONS
 
     @property
@@ -89,7 +88,6 @@ class Snake(object):
 
     def move(self):
         self.body.appendleft(self.peek_next_move())
-        self.tail_direction = self.body[-1] - self.body[-2]
         self.body.pop()
 
 

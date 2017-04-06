@@ -7,7 +7,6 @@ def test_place_snake_with_default_length_applies_default_layout():
     assert snake.tail == Point(4, 4)
     assert snake.length == 3
     assert snake.direction == SnakeDirection.NORTH
-    assert snake.tail_direction == SnakeDirection.SOUTH
     assert list(snake.body) == [(4, 2), (4, 3), (4, 4)]
 
 
@@ -92,37 +91,6 @@ def test_multiple_moves_respect_direction():
     snake.move()
 
     assert list(snake.body) == [(2, 5), (2, 4), (3, 4), (4, 4), (4, 5)]
-
-
-def test_multiple_moves_keep_track_of_tail_direction():
-    snake = Snake(Point(6, 5), length=4)
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.SOUTH
-
-    snake.direction = SnakeDirection.WEST
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.SOUTH
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.SOUTH
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.SOUTH
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.EAST
-
-    # Chasing own tail in a 2x2 grid.
-    snake.direction = SnakeDirection.SOUTH
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.EAST
-
-    snake.direction = SnakeDirection.EAST
-    snake.move()
-    assert snake.tail_direction == SnakeDirection.EAST
-
-    snake.direction = SnakeDirection.NORTH
-    snake.move()
-    snake.move()
-    # TODO: check if this is correct. Some game systems might use WEST.
-    assert snake.tail_direction == SnakeDirection.NORTH
 
 
 def test_turn_right_turns_relatively_to_current_direction():
