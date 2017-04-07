@@ -5,17 +5,37 @@ import numpy as np
 
 
 class ExperienceReplay(object):
+    """ Represents the experience replay memory that can be randomly sampled. """
 
     def __init__(self, input_shape, num_actions, memory_size=100):
+        """
+        Create a new instance of experience replay memory.
+        
+        Args:
+            input_shape: the shape of the agent state.
+            num_actions: the number of actions allowed in the environment.
+            memory_size: memory size limit (-1 for unlimited).
+        """
         self.memory = collections.deque()
         self.input_shape = input_shape
         self.num_actions = num_actions
         self.memory_size = memory_size
 
     def reset(self):
+        """ Erase the experience replay memory. """
         self.memory = collections.deque()
 
     def remember(self, state, action, reward, state_next, is_episode_end):
+        """
+        Store a new piece of experience into the replay memory.
+        
+        Args:
+            state: state observed at the previous step.
+            action: action taken at the previous step.
+            reward: reward received at the beginning of the current step.
+            state_next: state observed at the current step. 
+            is_episode_end: whether the episode has ended with the current step.
+        """
         memory_item = np.concatenate([
             state.flatten(),
             np.array(action).flatten(),
@@ -28,6 +48,8 @@ class ExperienceReplay(object):
             self.memory.popleft()
 
     def get_batch(self, model, batch_size, discount_factor=0.9):
+        """ Sample a batch from experience replay. """
+
         batch_size = min(len(self.memory), batch_size)
         experience = np.array(random.sample(self.memory, batch_size))
         input_dim = np.prod(self.input_shape)

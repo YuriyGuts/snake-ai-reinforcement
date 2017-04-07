@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" Front-end script for replaying the Snake agent's behavior on a batch of episodes. """
+
 import json
 import sys
 import numpy as np
@@ -10,9 +12,7 @@ from snakeai.utils.cli import HelpOnFailArgumentParser
 
 
 def parse_command_line_args(args):
-    """
-    Parse command-line arguments and organize them into a single structured object.
-    """
+    """ Parse command-line arguments and organize them into a single structured object. """
 
     parser = HelpOnFailArgumentParser(
         description='Snake AI replay client.',
@@ -54,7 +54,9 @@ def parse_command_line_args(args):
     return parser.parse_args(args)
 
 
-def get_snake_environment(level_filename):
+def create_snake_environment(level_filename):
+    """ Create a new Snake environment from the config file. """
+
     with open(level_filename) as cfg:
         env_config = json.load(cfg)
 
@@ -62,11 +64,24 @@ def get_snake_environment(level_filename):
 
 
 def load_model(filename):
+    """ Load a pre-trained agent model. """
+
     from keras.models import load_model
     return load_model(filename)
 
 
 def create_agent(name, model):
+    """
+    Create a specific type of Snake AI agent.
+    
+    Args:
+        name (str): key identifying the agent type.
+        model: (optional) a pre-trained model required by certain agents.
+
+    Returns:
+        An instance of Snake agent.
+    """
+
     from snakeai.agent import DeepQNetworkAgent, HumanAgent, RandomActionAgent
 
     if name == 'human':
@@ -82,6 +97,16 @@ def create_agent(name, model):
 
 
 def play_cli(env, agent, num_episodes=10):
+    """
+    Play a set of episodes using the specified Snake agent.
+    Use the non-interactive command-line interface and print the summary statistics afterwards.
+    
+    Args:
+        env: an instance of Snake environment.
+        agent: an instance of Snake agent.
+        num_episodes (int): the number of episodes to run.
+    """
+
     fruit_stats = []
 
     print()
@@ -108,6 +133,16 @@ def play_cli(env, agent, num_episodes=10):
 
 
 def play_gui(env, agent, num_episodes):
+    """
+    Play a set of episodes using the specified Snake agent.
+    Use the interactive graphical interface.
+    
+    Args:
+        env: an instance of Snake environment.
+        agent: an instance of Snake agent.
+        num_episodes (int): the number of episodes to run.
+    """
+
     gui = PyGameGUI()
     gui.load_environment(env)
     gui.load_agent(agent)
@@ -117,7 +152,7 @@ def play_gui(env, agent, num_episodes):
 def main():
     parsed_args = parse_command_line_args(sys.argv[1:])
 
-    env = get_snake_environment(parsed_args.level)
+    env = create_snake_environment(parsed_args.level)
     model = load_model(parsed_args.model) if parsed_args.model is not None else None
     agent = create_agent(parsed_args.agent, model)
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" Front-end script for training a Snake agent. """
+
 import json
 import sys
 
@@ -13,9 +15,7 @@ from snakeai.utils.cli import HelpOnFailArgumentParser
 
 
 def parse_command_line_args(args):
-    """
-    Parse command-line arguments and organize them into a single structured object.
-    """
+    """ Parse command-line arguments and organize them into a single structured object. """
 
     parser = HelpOnFailArgumentParser(
         description='Snake AI training client.',
@@ -40,6 +40,8 @@ def parse_command_line_args(args):
 
 
 def create_snake_environment(level_filename):
+    """ Create a new Snake environment from the config file. """
+
     with open(level_filename) as cfg:
         env_config = json.load(cfg)
 
@@ -47,6 +49,17 @@ def create_snake_environment(level_filename):
 
 
 def create_dqn_model(env, num_last_frames):
+    """
+    Build a new DQN model to be used for training.
+    
+    Args:
+        env: an instance of Snake environment. 
+        num_last_frames: the number of last frames the agent considers as state.
+
+    Returns:
+        A compiled DQN model.
+    """
+
     model = Sequential()
 
     # Convolutions.
@@ -93,7 +106,7 @@ def main():
         env,
         batch_size=64,
         num_episodes=parsed_args.num_episodes,
-        checkpoint_freq=parsed_args.num_episodes / 10,
+        checkpoint_freq=parsed_args.num_episodes // 10,
         discount_factor=0.95
     )
 

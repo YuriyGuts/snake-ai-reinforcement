@@ -7,6 +7,12 @@
     <orderEntry type="library" name="R Skeletons" level="project" />
     <orderEntry type="library" name="R User Skeletons" level="project" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="myDocStringFormat" value="Google" />
+  </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="py.test" />
     <option name="PROJECT_TEST_RUNNER" value="py.test" />

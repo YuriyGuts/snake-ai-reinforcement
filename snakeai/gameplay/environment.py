@@ -9,8 +9,22 @@ from .entities import Snake, Field, CellType, SnakeAction, ALL_SNAKE_ACTIONS
 
 
 class Environment(object):
+    """
+    Represents the RL environment for the Snake game that implements the game logic,
+    provides rewards for the agent and keeps track of game statistics.
+    """
 
     def __init__(self, config, verbose=1):
+        """
+        Create a new Snake RL environment.
+        
+        Args:
+            config (dict): level configuration, typically found in JSON configs.  
+            verbose (int): verbosity level:
+                0 = do not write any debug information;
+                1 = write a CSV file containing the statistics for every episode;
+                2 = same as 1, but also write a full log file containing the state of each timestep.
+        """
         self.field = Field(level_map=config['field'])
         self.snake = None
         self.fruit = None
@@ -26,18 +40,22 @@ class Environment(object):
         self.stats_file = None
 
     def seed(self, value):
+        """ Initialize the random state of the environment to make results reproducible. """
         random.seed(value)
         np.random.seed(value)
 
     @property
     def observation_shape(self):
+        """ Get the shape of the state observed at each timestep. """
         return self.field.size, self.field.size
 
     @property
     def num_actions(self):
+        """ Get the number of actions the agent can take. """
         return len(ALL_SNAKE_ACTIONS)
 
     def new_episode(self):
+        """ Reset the environment and begin a new episode. """
         self.field.create_level()
         self.stats.reset()
         self.timestep_index = 0
@@ -58,6 +76,7 @@ class Environment(object):
         return result
 
     def record_timestep_stats(self, result):
+        """ Record environment statistics according to the verbosity level. """
         timestamp = time.strftime('%Y%m%d-%H%M%S')
 
         # Write CSV header for the stats file.
@@ -66,6 +85,7 @@ class Environment(object):
             stats_csv_header_line = self.stats.to_dataframe()[:0].to_csv(index=None)
             print(stats_csv_header_line, file=self.stats_file, end='', flush=True)
 
+        # Create a blank debug log file.
         if self.verbose >= 2 and self.debug_file is None:
             self.debug_file = open(f'snake-env-{timestamp}.log', 'w')
 
@@ -75,7 +95,7 @@ class Environment(object):
         if self.verbose >= 2:
             print(result, file=self.debug_file)
 
-        # Log episode stats if an appropriate verbosity level is set.
+        # Log episode stats if the appropriate verbosity level is set.
         if result.is_episode_end:
             if self.verbose >= 1:
                 stats_csv_line = self.stats.to_dataframe().to_csv(header=False, index=None)
@@ -84,9 +104,12 @@ class Environment(object):
                 print(self.stats, file=self.debug_file)
 
     def get_observation(self):
+        """ Observe the state of the environment. """
         return np.copy(self.field._cells)
 
     def choose_action(self, action):
+        """ Choose the action that will be taken at the next timestep. """
+
         self.current_action = action
         if action == SnakeAction.TURN_LEFT:
             self.snake.turn_left()
@@ -94,6 +117,8 @@ class Environment(object):
             self.snake.turn_right()
 
     def timestep(self):
+        """ Execute the timestep and return the new observable state. """
+
         self.timestep_index += 1
         reward = 0
 
@@ -141,22 +166,28 @@ class Environment(object):
         return result
 
     def generate_fruit(self, position=None):
+        """ Generate a new fruit at a random unoccupied cell. """
         if position is None:
             position = self.field.get_random_empty_cell()
         self.field[position] = CellType.FRUIT
         self.fruit = position
 
     def has_hit_wall(self):
+        """ True if the snake has hit a wall, False otherwise. """
         return self.field[self.snake.head] == CellType.WALL
 
     def has_hit_own_body(self):
+        """ True if the snake has hit its own body, False otherwise. """
         return self.field[self.snake.head] == CellType.SNAKE_BODY
 
     def is_alive(self):
+        """ True if the snake is still alive, False otherwise. """
         return not self.has_hit_wall() and not self.has_hit_own_body()
 
 
 class TimestepResult(object):
+    """ Represents the information provided to the agent after each timestep. """
+
     def __init__(self, observation, reward, is_episode_end):
         self.observation = observation
         self.reward = reward
@@ -170,11 +201,14 @@ class TimestepResult(object):
         return f'{field_map}\nR = {self.reward}   end={self.is_episode_end}\n'
 
 
-class EpisodeStatistics():
+class EpisodeStatistics(object):
+    """ Represents the summary of the agent's performance during the episode. """
+
     def __init__(self):
         self.reset()
 
     def reset(self):
+        """ Forget all previous statistics and prepare for a new episode. """
         self.timesteps_survived = 0
         self.sum_episode_rewards = 0
         self.fruits_eaten = 0
@@ -185,11 +219,13 @@ class EpisodeStatistics():
         }
 
     def record_timestep(self, action, result):
+        """ Update the stats based on the current timestep results. """
         self.sum_episode_rewards += result.reward
         if action is not None:
             self.action_counter[action] += 1
 
     def flatten(self):
+        """ Format all episode statistics as a flat object. """
         flat_stats = {
             'timesteps_survived': self.timesteps_survived,
             'sum_episode_rewards': self.sum_episode_rewards,
@@ -204,6 +240,7 @@ class EpisodeStatistics():
         return flat_stats
 
     def to_dataframe(self):
+        """ Convert the episode statistics to a Pandas data frame. """
         return pd.DataFrame([self.flatten()])
 
     def __str__(self):

@@ -5,6 +5,8 @@ from snakeai.gameplay.entities import ALL_SNAKE_ACTIONS
 
 
 class RandomActionAgent(AgentBase):
+    """ Represents a Snake agent that takes a random action at every step. """
+
     def __init__(self):
         pass
 
