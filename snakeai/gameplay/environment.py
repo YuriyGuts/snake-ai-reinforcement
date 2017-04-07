@@ -28,6 +28,7 @@ class Environment(object):
         self.field = Field(level_map=config['field'])
         self.snake = None
         self.fruit = None
+        self.initial_snake_length = config['initial_snake_length']
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
@@ -60,7 +61,7 @@ class Environment(object):
         self.stats.reset()
         self.timestep_index = 0
 
-        self.snake = Snake(self.field.find_snake_head())
+        self.snake = Snake(self.field.find_snake_head(), length=self.initial_snake_length)
         self.field.place_snake(self.snake)
         self.generate_fruit()
         self.current_action = None
