@@ -4,4 +4,4 @@ numpy==1.12.1
 pandas==0.19.2
 pygame==1.9.3
 pytest==3.0.5
-tensorflow-gpu==1.0.1
+tensorflow==1.0.1

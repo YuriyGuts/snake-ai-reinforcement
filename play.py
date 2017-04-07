@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 """ Front-end script for replaying the Snake agent's behavior on a batch of episodes. """
 
