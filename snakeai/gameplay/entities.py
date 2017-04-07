@@ -14,11 +14,11 @@ class Point(namedtuple('PointTuple', ['x', 'y'])):
 
 
 class CellType(object):
-    EMPTY = 0.0
-    FRUIT = 1.0
-    SNAKE_HEAD = 3.0
-    SNAKE_BODY = 3.5
-    WALL = 4.0
+    EMPTY = 0
+    FRUIT = 1
+    SNAKE_HEAD = 2
+    SNAKE_BODY = 3
+    WALL = 4
 
 
 class SnakeDirection(object):
