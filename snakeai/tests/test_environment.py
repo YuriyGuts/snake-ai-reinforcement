@@ -13,7 +13,7 @@ def get_env_config_file(name):
 def load_env(name):
     with open(get_env_config_file(name)) as cfg:
         env_config = json.load(cfg)
-        return Environment(config=env_config, debug=False)
+        return Environment(config=env_config, verbose=0)
 
 
 def test_env_on_first_episode_has_consistent_initial_state():

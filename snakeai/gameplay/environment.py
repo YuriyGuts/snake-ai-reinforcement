@@ -4,12 +4,13 @@ import time
 
 import numpy as np
 import pandas as pd
+
 from .entities import Snake, Field, CellType, SnakeAction, ALL_SNAKE_ACTIONS
 
 
 class Environment(object):
 
-    def __init__(self, config, debug=False):
+    def __init__(self, config, verbose=1):
         self.field = Field(level_map=config['field'])
         self.snake = None
         self.fruit = None
@@ -20,7 +21,7 @@ class Environment(object):
         self.timestep_index = 0
         self.current_action = None
         self.stats = EpisodeStatistics()
-        self.debug = debug
+        self.verbose = verbose
         self.debug_file = None
         self.stats_file = None
 
@@ -57,23 +58,30 @@ class Environment(object):
         return result
 
     def record_timestep_stats(self, result):
-        if self.debug and self.debug_file is None:
-            timestamp = time.strftime('%Y%m%d-%H%M%S')
-            self.debug_file = open(f'snake-env-{timestamp}.log', 'w')
-            # Write CSV header only.
+        timestamp = time.strftime('%Y%m%d-%H%M%S')
+
+        # Write CSV header for the stats file.
+        if self.verbose >= 1 and self.stats_file is None:
             self.stats_file = open(f'snake-env-{timestamp}.csv', 'w')
             stats_csv_header_line = self.stats.to_dataframe()[:0].to_csv(index=None)
             print(stats_csv_header_line, file=self.stats_file, end='', flush=True)
 
+        if self.verbose >= 2 and self.debug_file is None:
+            self.debug_file = open(f'snake-env-{timestamp}.log', 'w')
+
         self.stats.record_timestep(self.current_action, result)
         self.stats.timesteps_survived = self.timestep_index
 
-        if self.debug:
+        if self.verbose >= 2:
             print(result, file=self.debug_file)
-            if result.is_episode_end:
-                print(self.stats, file=self.debug_file)
+
+        # Log episode stats if an appropriate verbosity level is set.
+        if result.is_episode_end:
+            if self.verbose >= 1:
                 stats_csv_line = self.stats.to_dataframe().to_csv(header=False, index=None)
                 print(stats_csv_line, file=self.stats_file, end='', flush=True)
+            if self.verbose >= 2:
+                print(self.stats, file=self.debug_file)
 
     def get_observation(self):
         return np.copy(self.field._cells)

@@ -39,6 +39,6 @@ def make_openai_gym_environment(config_filename):
     with open(config_filename) as cfg:
         env_config = json.load(cfg)
 
-    env_raw = Environment(config=env_config, debug=True)
+    env_raw = Environment(config=env_config, verbose=1)
     env = OpenAIGymEnvAdapter(env_raw, ALL_SNAKE_ACTIONS, np.zeros((10, 10)))
     return env

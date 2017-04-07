@@ -43,7 +43,7 @@ def create_snake_environment(level_filename):
     with open(level_filename) as cfg:
         env_config = json.load(cfg)
 
-    return Environment(config=env_config, debug=True)
+    return Environment(config=env_config, verbose=1)
 
 
 def create_dqn_model(env, num_last_frames):

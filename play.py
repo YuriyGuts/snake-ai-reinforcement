@@ -58,7 +58,7 @@ def get_snake_environment(level_filename):
     with open(level_filename) as cfg:
         env_config = json.load(cfg)
 
-    return Environment(config=env_config)
+    return Environment(config=env_config, verbose=1)
 
 
 def load_model(filename):
