@@ -8,7 +8,8 @@ from snakeai.gameplay.entities import (CellType, SnakeAction, ALL_SNAKE_DIRECTIO
 class PyGameGUI:
 
     FPS_LIMIT = 60
-    TIMESTEP_DELAY = 500
+    AI_TIMESTEP_DELAY = 100
+    HUMAN_TIMESTEP_DELAY = 500
     CELL_SIZE = 20
 
     SNAKE_CONTROL_KEYS = [
@@ -70,53 +71,56 @@ class PyGameGUI:
         direction_idx = ALL_SNAKE_DIRECTIONS.index(self.env.snake.direction)
         return np.roll(actions, -key_idx)[direction_idx]
 
-    def run(self):
+    def run(self, num_episodes=1):
         pygame.display.update()
         self.fps_clock = pygame.time.Clock()
-        self.timestep_watch.reset()
 
-        # Initialize the environment.
-        timestep_result = self.env.new_episode()
-        self.agent.begin_episode()
         is_human_agent = isinstance(self.agent, HumanAgent)
+        timestep_delay = self.HUMAN_TIMESTEP_DELAY if is_human_agent else self.AI_TIMESTEP_DELAY
 
-        # Main game loop.
-        running = True
-        while running:
-            action = SnakeAction.MAINTAIN_DIRECTION
+        for episode in range(num_episodes):
+            # Initialize the environment.
+            self.timestep_watch.reset()
+            timestep_result = self.env.new_episode()
+            self.agent.begin_episode()
 
-            # Handle events.
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if is_human_agent and event.key in self.SNAKE_CONTROL_KEYS:
-                        action = self.map_key_to_snake_action(event.key)
-                    if event.key == pygame.K_ESCAPE:
+            # Main game loop.
+            running = True
+            while running:
+                action = SnakeAction.MAINTAIN_DIRECTION
+
+                # Handle events.
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if is_human_agent and event.key in self.SNAKE_CONTROL_KEYS:
+                            action = self.map_key_to_snake_action(event.key)
+                        if event.key == pygame.K_ESCAPE:
+                            running = False
+
+                    if event.type == pygame.QUIT:
                         running = False
 
-                if event.type == pygame.QUIT:
-                    running = False
+                # Update game state.
+                timestep_timed_out = self.timestep_watch.time() >= timestep_delay
+                human_made_move = is_human_agent and action != SnakeAction.MAINTAIN_DIRECTION
 
-            # Update game state.
-            timestep_timed_out = self.timestep_watch.time() >= self.TIMESTEP_DELAY
-            human_made_move = is_human_agent and action != SnakeAction.MAINTAIN_DIRECTION
+                if timestep_timed_out or human_made_move:
+                    self.timestep_watch.reset()
 
-            if timestep_timed_out or human_made_move:
-                self.timestep_watch.reset()
+                    if not is_human_agent:
+                        action = self.agent.act(timestep_result.observation, timestep_result.reward)
 
-                if not is_human_agent:
-                    action = self.agent.act(timestep_result.observation, timestep_result.reward)
+                    self.env.choose_action(action)
+                    timestep_result = self.env.timestep()
 
-                self.env.choose_action(action)
-                timestep_result = self.env.timestep()
+                    if timestep_result.is_episode_end:
+                        self.agent.end_episode()
+                        running = False
 
-                if timestep_result.is_episode_end:
-                    self.agent.end_episode()
-                    running = False
-
-            # Render.
-            self.render()
-            pygame.display.update()
-            self.fps_clock.tick(self.FPS_LIMIT)
+                # Render.
+                self.render()
+                pygame.display.update()
+                self.fps_clock.tick(self.FPS_LIMIT)
 
 
 class Stopwatch(object):

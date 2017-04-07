@@ -159,7 +159,7 @@ class TimestepResult(object):
             ''.join(str(cell) for cell in row)
             for row in self.observation
         ])
-        return '{}\nR = {}   end={}\n'.format(field_map, self.reward, self.is_episode_end)
+        return f'{field_map}\nR = {self.reward}   end={self.is_episode_end}\n'
 
 
 class EpisodeStatistics():

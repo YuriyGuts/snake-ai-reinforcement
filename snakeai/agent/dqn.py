@@ -7,8 +7,8 @@ from snakeai.utils.memory import ExperienceReplay
 
 class DeepQNetworkAgent(AgentBase):
     def __init__(self, model, num_last_frames=4, memory_size=1000):
-        assert model.input_shape[1] == num_last_frames, "Model input shape should be (num_frames, grid_size, grid_size)"
-        assert len(model.output_shape) == 2, "Model output shape should be (num_samples, num_actions)"
+        assert model.input_shape[1] == num_last_frames, 'Model input shape should be (num_frames, grid_size, grid_size)'
+        assert len(model.output_shape) == 2, 'Model output shape should be (num_samples, num_actions)'
 
         self.model = model
         self.num_last_frames = num_last_frames
@@ -72,7 +72,7 @@ class DeepQNetworkAgent(AgentBase):
                     loss += float(self.model.train_on_batch(inputs, targets))
 
             if checkpoint_freq and (episode % checkpoint_freq) == 0:
-                self.model.save('dqn-{:08d}.model'.format(episode))
+                self.model.save(f'dqn-{episode:08d}.model')
 
             if exploration_rate > min_exploration_rate:
                 exploration_rate -= exploration_decay
@@ -90,32 +90,3 @@ class DeepQNetworkAgent(AgentBase):
         state = self.get_last_frames(observation)
         q = self.model.predict(state)[0]
         return np.argmax(q)
-
-    def play(self, env, num_episodes=10, epsilon=0.0):
-        model = self.model
-
-        print()
-        print('Playing:')
-
-        for episode in range(num_episodes):
-            timestep = env.new_episode()
-            self.begin_episode()
-            state = self.get_last_frames(timestep.observation)
-            game_over = False
-
-            while not game_over:
-                if np.random.rand() < epsilon:
-                    print("random")
-                    action = int(np.random.randint(0, env.num_actions))
-                else:
-                    q = model.predict(state)[0]
-                    action = np.argmax(q)
-
-                env.choose_action(action)
-                timestep = env.timestep()
-
-                state = self.get_last_frames(timestep.observation)
-                game_over = timestep.is_episode_end
-
-            summary = 'Episode {:3d} | Timesteps {:4d} | Fruits {:2d}'
-            print(summary.format(episode, env.stats.timesteps_survived, env.stats.fruits_eaten))
