@@ -3,7 +3,7 @@
 LEVEL="snakeai/levels/10x10-blank.json"
 
 deps:
-	python3.6 -m pip install -r requirements.txt
+	python3.6 -m pip install --upgrade -r requirements.txt
 
 test:
 	PYTHONPATH=$(PYTHONPATH):. py.test snakeai/tests
