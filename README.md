@@ -7,7 +7,7 @@ Contains the tools for training and observing the behavior of the agents, either
 
 
 ## Requirements
-All components have been written in Python 3.6. Training on GPU is supported but disabled by default. To install GPU dependencies, change `tensorflow` to `tensorflow-gpu` in the requirements file.
+All components have been written in Python 3.6. Training on GPU is supported but disabled by default. If you have CUDA and would like to use a GPU, use the GPU version of TensorFlow by changing `tensorflow` to `tensorflow-gpu` in the requirements file.
 
 To install all Python dependencies, run:
 ```
